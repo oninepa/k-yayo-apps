@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* 상하 간격 조절 */
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.bottomRow {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.navItem {
+  margin: 0 10px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.navItem:hover {
+  text-decoration: underline;
+}
+
+.languageSelector {
+  cursor: pointer;
+}
