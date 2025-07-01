@@ -1,15 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { navigationData } from "@/data/navigationData";
 
 const NavigationBar = () => {
   const [activeNav, setActiveNav] = useState<string | null>(null);
+  const pathname = usePathname();
 
   const handleNavClick = (navName: string) => {
     setActiveNav((prev) => (prev === navName ? null : navName));
   };
+
+  useEffect(() => {
+    setActiveNav(null);
+  }, [pathname]);
 
   const activeNavItem = useMemo(
     () => navigationData.find((nav) => nav.name === activeNav),
@@ -35,15 +41,15 @@ const NavigationBar = () => {
       </nav>
 
       {activeNavItem && (
-        <div className="p-2 bg-gray-50 border-b">
-          <ul className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1 text-center">
+        <div className="p-4 bg-gray-50 border-b">
+          <ul className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 text-center">
             {activeNavItem.subItems.map((subItem) => (
               <li key={subItem}>
                 <Link
                   href={`${activeNavItem.path}/${subItem
                     .toLowerCase()
                     .replace(/\s+/g, "-")}`}
-                  className="block p-1.5 text-base font-medium text-gray-800 hover:bg-gray-200 rounded transition-colors"
+                  className="block p-2 text-sm font-medium text-gray-800 hover:bg-gray-200 rounded transition-colors"
                 >
                   {subItem}
                 </Link>

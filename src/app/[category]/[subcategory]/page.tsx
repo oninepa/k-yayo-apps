@@ -1,39 +1,55 @@
-import fs from "fs";
-import path from "path";
+import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import path from "path";
+import fs from "fs";
 
-// "English(Korean)" 형식에서 "English" 부분만 추출하는 헬퍼 함수
+// 게시판 이름 파싱 함수
 const parseBoardName = (line: string) => {
-  const match = line.match(/^([^()]+)/);
+  const match = line.match(/^([^(]+)\s*\(([^)]+)\)$/);
   return match ? match[1].trim() : line.trim();
 };
 
-// URL에 사용하기 안전한 slug를 만드는 헬퍼 함수
+// URL 슬러그 생성 함수
 const slugify = (text: string) => {
-  return text.toLowerCase().replace(/\s+/g, "-");
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 };
 
 export default function SubCategoryPage({
   params,
 }: {
-  params: { category: string; subCategory: string };
+  params: Promise<{ category: string; subCategory: string }>;
 }) {
-  const { category, subCategory } = params;
-  const filePath = path.join(
-    process.cwd(),
-    "public",
-    "data",
-    category,
-    `${subCategory}.txt`
-  );
+  const resolvedParams = React.use(params);
+  const { category, subCategory } = resolvedParams;
 
+  // public/data 경로 확인
+  const dataDir = path.join(process.cwd(), "public", "data");
+  if (!fs.existsSync(dataDir)) {
+    console.error("Data directory not found:", dataDir);
+    notFound();
+  }
+
+  const filePath = path.join(dataDir, category, `${subCategory}.txt`);
+
+  // 파일 존재 여부 확인
+  if (!fs.existsSync(filePath)) {
+    console.error("Board list file not found:", filePath);
+    notFound();
+  }
+
+  // 파일 읽기 전에 경로 확인
+  console.log("Trying to read:", filePath);
   let boardItems: string[] = [];
   try {
     const fileContent = fs.readFileSync(filePath, "utf-8");
     boardItems = fileContent.split("\n").filter((line) => line.trim() !== "");
   } catch (error) {
-    // .txt 파일이 없으면 404 페이지를 보여줍니다.
+    console.error("Error reading file:", error);
     notFound();
   }
 
@@ -43,16 +59,16 @@ export default function SubCategoryPage({
         {subCategory.replace(/-/g, " ")}
       </h1>
       <ul className="space-y-2">
-        {boardItems.map((item) => {
+        {boardItems.map((item, index) => {
           const boardName = parseBoardName(item);
           const boardSlug = slugify(boardName);
           return (
-            <li key={boardSlug}>
+            <li key={`${boardSlug}-${index}`}>
               <Link
                 href={`/${category}/${subCategory}/${boardSlug}`}
-                className="block p-3 bg-white rounded-lg shadow hover:bg-gray-100 transition-colors"
+                className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
               >
-                {item}
+                {boardName}
               </Link>
             </li>
           );
