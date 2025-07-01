@@ -1,8 +1,8 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import path from "path";
-import fs from "fs";
 
 // 게시판 이름 파싱 함수
 const parseBoardName = (line: string) => {
@@ -27,30 +27,82 @@ export default function SubCategoryPage({
   const resolvedParams = React.use(params);
   const { category, subCategory } = resolvedParams;
 
-  // public/data 경로 확인
-  const dataDir = path.join(process.cwd(), "public", "data");
-  if (!fs.existsSync(dataDir)) {
-    console.error("Data directory not found:", dataDir);
-    notFound();
+  const [boardItems, setBoardItems] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadBoardItems = async () => {
+      try {
+        console.log(`Loading board items for ${category}/${subCategory}`);
+        const response = await fetch(
+          `/api/getBoardList?category=${encodeURIComponent(
+            category
+          )}&subCategory=${encodeURIComponent(subCategory)}`
+        );
+
+        if (!response.ok) {
+          console.error(`Failed to load board items: ${response.status}`);
+          setError(`Failed to load board items: ${response.status}`);
+          setIsLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+        if (data.error) {
+          console.error("API Error:", data.error);
+          setError(data.error);
+          setIsLoading(false);
+          return;
+        }
+
+        console.log(`Loaded ${data.boardItems.length} board items`);
+        setBoardItems(data.boardItems);
+      } catch (error) {
+        console.error("Error loading board items:", error);
+        setError("Failed to load board items");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBoardItems();
+  }, [category, subCategory]);
+
+  if (isLoading) {
+    return (
+      <div className="p-4">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded mb-4"></div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-12 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const filePath = path.join(dataDir, category, `${subCategory}.txt`);
-
-  // 파일 존재 여부 확인
-  if (!fs.existsSync(filePath)) {
-    console.error("Board list file not found:", filePath);
-    notFound();
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="text-center py-10">
+          <p className="text-red-600 mb-2">Error: {error}</p>
+          <p className="text-gray-500">Failed to load board items</p>
+        </div>
+      </div>
+    );
   }
 
-  // 파일 읽기 전에 경로 확인
-  console.log("Trying to read:", filePath);
-  let boardItems: string[] = [];
-  try {
-    const fileContent = fs.readFileSync(filePath, "utf-8");
-    boardItems = fileContent.split("\n").filter((line) => line.trim() !== "");
-  } catch (error) {
-    console.error("Error reading file:", error);
-    notFound();
+  if (boardItems.length === 0) {
+    return (
+      <div className="p-4">
+        <div className="text-center py-10">
+          <p className="text-gray-500">No board items found</p>
+        </div>
+      </div>
+    );
   }
 
   return (

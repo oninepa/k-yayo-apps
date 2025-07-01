@@ -63,7 +63,10 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
     } catch (error: any) {
-      if (error.code === "auth/popup-closed-by-user") {
+      console.error("Google Sign-In Error:", error);
+      if (error.message) {
+        setError(error.message);
+      } else if (error.code === "auth/popup-closed-by-user") {
         setError("Login cancelled.");
       } else {
         setError("Google login failed. Please try again.");
@@ -156,7 +159,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <svg
                   className="w-5 h-5"

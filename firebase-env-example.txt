@@ -1,0 +1,12 @@
+# Firebase Configuration
+# 이 파일을 .env.local로 복사하고 실제 값으로 교체하세요
+
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# Vercel 배포 시 이 환경변수들을 Vercel 프로젝트 설정에 추가해야 합니다
+# Vercel Dashboard > Project Settings > Environment Variables 
