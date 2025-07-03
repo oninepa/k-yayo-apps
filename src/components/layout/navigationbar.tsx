@@ -36,9 +36,31 @@ const NavigationBar = () => {
 
   // 스크롤이나 드래그 시 메뉴 닫기
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
     const handleScroll = () => {
-      if (activeNav) {
-        setActiveNav(null);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const scrollDelta = currentScrollY - lastScrollY;
+
+          // 스크롤이 위쪽으로 올라갈 때는 항상 메뉴 닫기
+          // 스크롤이 아래쪽으로 내려갈 때는 페이지 상단 근처(200px 이하)에서만 메뉴 닫기
+          if (activeNav) {
+            if (scrollDelta < 0) {
+              // 위쪽으로 스크롤할 때는 항상 메뉴 닫기
+              setActiveNav(null);
+            } else if (scrollDelta > 0 && currentScrollY < 200) {
+              // 아래쪽으로 스크롤할 때는 페이지 상단 근처에서만 메뉴 닫기
+              setActiveNav(null);
+            }
+          }
+
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
