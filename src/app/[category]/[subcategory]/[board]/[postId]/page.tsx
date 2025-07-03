@@ -273,7 +273,7 @@ export default function PostPage() {
           {post.createdAt?.toDate().toLocaleDateString()}
         </div>
 
-        <div className="prose max-w-none whitespace-pre-wrap mb-4">
+        <div className="prose max-w-none whitespace-pre-wrap mb-4 text-2xl font-bold text-gray-900 leading-relaxed">
           {post.content}
         </div>
 

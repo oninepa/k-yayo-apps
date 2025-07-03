@@ -11,19 +11,19 @@ interface BreadcrumbProps {
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
   return (
-    <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+    <nav className="flex items-center space-x-2 text-sm mb-6">
       {items.map((item, index) => (
         <React.Fragment key={index}>
-          {index > 0 && <ChevronRight size={16} className="text-gray-400" />}
+          {index > 0 && <span className="text-gray-300">•</span>}
           {item.href ? (
             <Link
               href={item.href}
-              className="hover:text-blue-600 transition-colors capitalize"
+              className="text-gray-500 hover:text-purple-600 transition-colors hover:underline capitalize"
             >
               {item.label}
             </Link>
           ) : (
-            <span className="text-gray-800 font-medium capitalize">
+            <span className="font-semibold text-gray-700 bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent capitalize">
               {item.label}
             </span>
           )}

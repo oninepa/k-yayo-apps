@@ -262,120 +262,123 @@ const CommentItem = ({ comment }: CommentItemProps) => {
   const isDisliked = user && comment.dislikes?.includes(user.uid);
 
   return (
-    <div className="p-4 bg-gray-50 rounded-lg">
-      <div className="flex items-start space-x-3">
+    <div className="p-1 bg-gray-50 rounded-lg">
+      <div className="flex items-start space-x-2">
         <div className="flex-shrink-0">
           {comment.authorPhotoURL ? (
             <img
-              className="w-10 h-10 rounded-full"
+              className="w-6 h-6 rounded-full"
               src={comment.authorPhotoURL}
               alt={comment.authorName}
             />
           ) : (
-            <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+            <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
           )}
         </div>
         <div className="flex-1">
-          <div className="flex justify-between items-start">
-            <p className="font-semibold">{comment.authorName}</p>
-            {user && user.uid === comment.authorId && !isEditing && (
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="text-gray-400 hover:text-blue-500"
-                >
-                  <Pencil size={14} />
-                </button>
-                <button
-                  onClick={handleDeleteComment}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            )}
-          </div>
-
           {!isEditing ? (
-            <p className="text-gray-700 whitespace-pre-wrap mt-1">
-              {comment.content}
-            </p>
+            <div>
+              <p className="text-gray-700 whitespace-pre-wrap text-xs leading-tight mb-1">
+                {comment.content}
+              </p>
+              <div className="flex justify-between items-center">
+                <p className="font-semibold text-xs text-gray-600">
+                  {comment.authorName}
+                </p>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleLike}
+                    className={`flex items-center space-x-1 hover:text-blue-500 text-xs ${
+                      isLiked ? "text-blue-500" : ""
+                    }`}
+                  >
+                    <ThumbsUp size={10} />{" "}
+                    <span>{comment.likes?.length || 0}</span>
+                  </button>
+                  <button
+                    onClick={handleDislike}
+                    className={`flex items-center space-x-1 hover:text-red-500 text-xs ${
+                      isDisliked ? "text-red-500" : ""
+                    }`}
+                  >
+                    <ThumbsDown size={10} />{" "}
+                    <span>{comment.dislikes?.length || 0}</span>
+                  </button>
+                  <button
+                    onClick={() => setShowReplyForm(!showReplyForm)}
+                    className="flex items-center space-x-1 hover:text-gray-800 text-xs"
+                  >
+                    <MessageSquare size={10} /> <span>Reply</span>
+                  </button>
+                  {user && user.uid === comment.authorId && (
+                    <>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="text-gray-400 hover:text-blue-500"
+                      >
+                        <Pencil size={10} />
+                      </button>
+                      <button
+                        onClick={handleDeleteComment}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <Trash2 size={10} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
           ) : (
-            <form onSubmit={handleUpdateComment} className="mt-2">
+            <form onSubmit={handleUpdateComment}>
               <textarea
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
-                className="w-full p-2 border rounded-md"
-                rows={3}
+                className="w-full p-1 border rounded-md text-xs"
+                rows={2}
               ></textarea>
-              <div className="flex justify-end space-x-2 mt-2">
+              <div className="flex justify-end space-x-1 mt-1">
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                  className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   Save
                 </button>
               </div>
             </form>
           )}
-
-          <div className="flex items-center space-x-4 mt-2 text-gray-500">
-            <button
-              onClick={handleLike}
-              className={`flex items-center space-x-1 hover:text-blue-500 ${
-                isLiked ? "text-blue-500" : ""
-              }`}
-            >
-              <ThumbsUp size={16} /> <span>{comment.likes?.length || 0}</span>
-            </button>
-            <button
-              onClick={handleDislike}
-              className={`flex items-center space-x-1 hover:text-red-500 ${
-                isDisliked ? "text-red-500" : ""
-              }`}
-            >
-              <ThumbsDown size={16} />{" "}
-              <span>{comment.dislikes?.length || 0}</span>
-            </button>
-            <button
-              onClick={() => setShowReplyForm(!showReplyForm)}
-              className="flex items-center space-x-1 hover:text-gray-800"
-            >
-              <MessageSquare size={16} /> <span>Reply</span>
-            </button>
-          </div>
         </div>
       </div>
 
       {/* Reply Form */}
       {showReplyForm && (
-        <form onSubmit={handleReplySubmit} className="mt-4 ml-12">
+        <form onSubmit={handleReplySubmit} className="mt-1 ml-8">
           <textarea
-            className="w-full p-2 border rounded-md"
+            className="w-full p-1 border rounded-md text-xs"
             rows={2}
             placeholder={`Replying to ${comment.authorName}...`}
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             required
           ></textarea>
-          <div className="flex justify-end space-x-2 mt-2">
+          <div className="flex justify-end space-x-1 mt-1">
             <button
               type="button"
               onClick={() => setShowReplyForm(false)}
-              className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+              className="px-2 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
               disabled={isSubmittingReply}
             >
               {isSubmittingReply ? "Posting..." : "Post Reply"}
@@ -386,7 +389,7 @@ const CommentItem = ({ comment }: CommentItemProps) => {
 
       {/* Replies (Recursive) */}
       {replies.length > 0 && (
-        <div className="mt-4 ml-8 space-y-4 border-l-2 border-gray-200 pl-4">
+        <div className="mt-1 ml-4 space-y-1 border-l-2 border-gray-200 pl-2">
           {replies.map((reply) => (
             <CommentItem key={reply.id} comment={reply} />
           ))}

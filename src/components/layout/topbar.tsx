@@ -1,7 +1,15 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ArrowLeft, Globe, Menu, LogIn, User } from "lucide-react";
+import {
+  Home,
+  ArrowLeft,
+  Globe,
+  Menu,
+  LogIn,
+  User,
+  Sparkles,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useState } from "react";
@@ -19,16 +27,24 @@ const TopBar = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between h-14 px-4 bg-white border-b">
+      <div className="flex items-center justify-between h-16 px-6 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm sticky top-0 z-50">
         {/* Left Section */}
-        <div className="flex items-center space-x-4 w-1/3">
+        <div className="flex items-center space-x-3 w-1/3">
           {!isHomePage && (
             <>
-              <button onClick={() => router.push("/")} aria-label="Go to home">
-                <Home size={24} />
+              <button
+                onClick={() => router.push("/")}
+                aria-label="Go to home"
+                className="p-2 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 text-white hover:from-pink-500 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Home size={20} />
               </button>
-              <button onClick={() => router.back()} aria-label="Go back">
-                <ArrowLeft size={24} />
+              <button
+                onClick={() => router.back()}
+                aria-label="Go back"
+                className="p-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <ArrowLeft size={20} />
               </button>
             </>
           )}
@@ -36,14 +52,22 @@ const TopBar = () => {
 
         {/* Center Section */}
         <div className="w-1/3 text-center">
-          <h1 className="text-xl font-bold">K-YAYO</h1>{" "}
-          {/* Placeholder for Title/Logo */}
+          <div className="flex items-center justify-center space-x-2">
+            <Sparkles size={24} className="text-pink-500 animate-pulse" />
+            <h1 className="text-2xl font-bold gradient-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+              K-YAYO
+            </h1>
+            <Sparkles size={24} className="text-purple-500 animate-pulse" />
+          </div>
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center justify-end space-x-4 w-1/3">
-          <button aria-label="Select language">
-            <Globe size={24} />
+        <div className="flex items-center justify-end space-x-3 w-1/3">
+          <button
+            aria-label="Select language"
+            className="p-2 rounded-full bg-gradient-to-r from-green-400 to-teal-500 text-white hover:from-green-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <Globe size={20} />
           </button>
           <button
             onClick={() => {
@@ -51,28 +75,32 @@ const TopBar = () => {
               setIsHamburgerOpen(true);
             }}
             aria-label="Open menu"
-            className="hover:text-blue-600 transition-colors"
+            className="p-2 rounded-full bg-gradient-to-r from-orange-400 to-red-500 text-white hover:from-orange-500 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
           {loading ? (
-            <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 animate-pulse-slow" />
           ) : user ? (
             <>
-              <span className="text-sm font-medium hidden sm:block">
+              <span className="text-sm font-semibold hidden sm:block text-gray-700 bg-white/50 px-3 py-1 rounded-full">
                 {user.displayName}
               </span>
               <button
                 onClick={() => setIsProfileOpen(true)}
                 aria-label="User profile"
-                className="hover:text-blue-600"
+                className="p-2 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 text-white hover:from-pink-500 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                <User size={24} />
+                <User size={20} />
               </button>
             </>
           ) : (
-            <Link href="/login" aria-label="Login">
-              <LogIn size={24} />
+            <Link
+              href="/login"
+              aria-label="Login"
+              className="p-2 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 text-white hover:from-pink-500 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <LogIn size={20} />
             </Link>
           )}
         </div>

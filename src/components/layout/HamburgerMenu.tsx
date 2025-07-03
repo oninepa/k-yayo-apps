@@ -42,7 +42,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-end z-[9999]"
+      className="fixed inset-0 bg-white bg-opacity-90 flex items-start justify-end z-[9999]"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
