@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { UserService } from "@/services/userService";
 import { User, getUserLevel, ADMIN_COLORS, canManageUsers } from "@/types/auth";
 import { Crown, Edit, Coins, User as UserIcon, Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -13,11 +14,14 @@ interface UserProfileProps {
 
 const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
   const { user: authUser } = useAuth();
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newNickname, setNewNickname] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [adminClickCount, setAdminClickCount] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
 
   useEffect(() => {
     if (isOpen && authUser) {
@@ -62,6 +66,53 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAdminClick = () => {
+    const currentTime = Date.now();
+
+    console.log("Admin click detected:", {
+      currentTime,
+      lastClickTime,
+      adminClickCount,
+    });
+
+    // 3초 내에 클릭해야 함
+    if (currentTime - lastClickTime > 3000) {
+      setAdminClickCount(1);
+      console.log("Reset click count to 1");
+    } else {
+      const newCount = adminClickCount + 1;
+      setAdminClickCount(newCount);
+      console.log("Increment click count to:", newCount);
+
+      // 3번 클릭 시 권한 체크 후 이동
+      if (newCount >= 3) {
+        console.log("3 clicks detected! Checking permissions...");
+        setAdminClickCount(0);
+
+        // admin 페이지 접근 권한 체크
+        if (
+          user &&
+          (user.role === "OWNER" ||
+            user.role === "ADMIN" ||
+            user.role === "NAVI_ADMIN" ||
+            user.role === "CHANNEL_ADMIN" ||
+            user.role === "BOARD_ADMIN")
+        ) {
+          console.log("Admin access granted, redirecting to admin page...");
+          window.location.href = "/admin";
+        } else {
+          console.log("No admin access, redirecting to home page...");
+          console.log("User role:", user?.role || "No role");
+          // 권한이 없는 사용자는 홈페이지로 이동
+          window.location.href = "/";
+        }
+        return;
+      }
+    }
+
+    setLastClickTime(currentTime);
   };
 
   if (!isOpen || !user) return null;
@@ -201,25 +252,33 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
           {/* Admin Only Information */}
           {canManageUsers(user.role) && (
             <div className="border-t pt-4">
-              <h3 className="font-semibold mb-2">Admin Information</h3>
+              <h3
+                className="font-semibold mb-2 cursor-default select-none"
+                onClick={handleAdminClick}
+                style={{ userSelect: "none" }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                Admin Information
+              </h3>
               <div className="space-y-2 text-sm">
                 <div>Join Date: {user.createdAt.toLocaleDateString()}</div>
                 <div>Last Login: {user.lastLoginAt.toLocaleDateString()}</div>
 
                 {/* 관리 영역 표시 */}
-                {user.managedNavigations &&
-                  user.managedNavigations.length > 0 && (
-                    <div>
-                      <div className="font-medium text-blue-700 mb-1">
-                        Managed Navigations:
-                      </div>
-                      <div className="pl-2 space-y-1">
-                        {user.managedNavigations.map((nav, index) => (
-                          <div key={index} className="flex items-center">
-                            <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                            {nav.includes("/") ? (
-                              <span className="text-xs">
-                                {nav.split("/").map((part, i) => (
+                {user.managedAreas && user.managedAreas.length > 0 && (
+                  <div>
+                    <div className="font-medium text-blue-700 mb-1">
+                      Managed Areas:
+                    </div>
+                    <div className="pl-2 space-y-1">
+                      {user.managedAreas.map((area: string, index: number) => (
+                        <div key={index} className="flex items-center">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                          {area.includes("/") ? (
+                            <span className="text-xs">
+                              {area
+                                .split("/")
+                                .map((part: string, i: number) => (
                                   <span key={i}>
                                     {i > 0 && (
                                       <span className="text-gray-400"> → </span>
@@ -227,72 +286,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
                                     {part.toUpperCase()}
                                   </span>
                                 ))}
-                              </span>
-                            ) : (
-                              <span className="text-xs">
-                                {nav.toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                {user.managedChannels && user.managedChannels.length > 0 && (
-                  <div>
-                    <div className="font-medium text-green-700 mb-1">
-                      Managed Channels:
-                    </div>
-                    <div className="pl-2 space-y-1">
-                      {user.managedChannels.map((channel, index) => (
-                        <div key={index} className="flex items-center">
-                          <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                          {channel.includes("/") ? (
-                            <span className="text-xs">
-                              {channel.split("/").map((part, i) => (
-                                <span key={i}>
-                                  {i > 0 && (
-                                    <span className="text-gray-400"> → </span>
-                                  )}
-                                  {part.toUpperCase()}
-                                </span>
-                              ))}
                             </span>
                           ) : (
                             <span className="text-xs">
-                              {channel.toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {user.managedBoards && user.managedBoards.length > 0 && (
-                  <div>
-                    <div className="font-medium text-purple-700 mb-1">
-                      Managed Boards:
-                    </div>
-                    <div className="pl-2 space-y-1">
-                      {user.managedBoards.map((board, index) => (
-                        <div key={index} className="flex items-center">
-                          <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                          {board.includes("/") ? (
-                            <span className="text-xs">
-                              {board.split("/").map((part, i) => (
-                                <span key={i}>
-                                  {i > 0 && (
-                                    <span className="text-gray-400"> → </span>
-                                  )}
-                                  {part.toUpperCase()}
-                                </span>
-                              ))}
-                            </span>
-                          ) : (
-                            <span className="text-xs">
-                              {board.toUpperCase()}
+                              {area.toUpperCase()}
                             </span>
                           )}
                         </div>
